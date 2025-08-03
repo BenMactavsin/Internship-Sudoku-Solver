@@ -4,41 +4,33 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-# -----------------------------
-# Neural Network Definition
-# -----------------------------
+# Neural Network
 class DigitModel(nn.Module):
     def __init__(self):
         super(DigitModel, self).__init__()
         self.layers = nn.Sequential(
-            nn.Flatten(),                    # Flatten 28x28 input to 784
-            nn.Linear(28 * 28, 128),           # Hidden layer 1
+            nn.Flatten(), # Flatten 28x28 input to 784
+            nn.Linear(784, 128),
             nn.LeakyReLU(),
-            nn.Linear(128, 64),             # Hidden layer 2
+            nn.Linear(128, 64),
             nn.LeakyReLU(),
             nn.Linear(64, 10)
         )
+
     def forward(self, x):
         return self.layers(x)
 
 if __name__ == "__main__":
-    # -----------------------------
     # Hyperparameters
-    # -----------------------------
     batch_size = 128
     learning_rate = 0.001
     epochs = 1000
-    model_path = "model/mnist_model.pt"  # Model export path
+    model_path = "model/mnist_model.pt"
 
-    # -----------------------------
     # Device Configuration (GPU if available)
-    # -----------------------------
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # -----------------------------
-    # Data Preparation: MNIST
-    # -----------------------------
-    transform = transforms.ToTensor()  # Converts PIL image to tensor (with values [0,1])
+    transform = transforms.ToTensor()  # Function for converting image to tensor with values [0,1]
 
     # Download and load training data
     train_dataset = datasets.MNIST(root='data', train=True, download=True, transform=transform)
@@ -48,18 +40,14 @@ if __name__ == "__main__":
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     test_loader  = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
-    # Instantiate the model and move it to the selected device
+    # Load the model and move it to the selected device
     model = DigitModel().to(device)
 
-    # -----------------------------
     # Loss Function and Optimizer
-    # -----------------------------
-    criterion = nn.CrossEntropyLoss()                  # For multi-class classification
+    criterion = nn.CrossEntropyLoss() # For multi-class classification
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # -----------------------------
     # Training Loop
-    # -----------------------------
     print("Training started...\n")
     for epoch in range(epochs):
         model.train()  # Set model to training mode
@@ -84,14 +72,12 @@ if __name__ == "__main__":
 
     print("\nTraining complete!")
 
-    # -----------------------------
     # Evaluation on Test Set
-    # -----------------------------
     model.eval()  # Set model to evaluation mode
     correct = 0
     total = 0
 
-    with torch.no_grad():  # Disable gradient calculation for inference
+    with torch.no_grad():  # Disable gradient calculation
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
@@ -102,8 +88,6 @@ if __name__ == "__main__":
     accuracy = 100 * correct / total
     print(f"Test Accuracy: {accuracy}%")
 
-    # -----------------------------
-    # Export/Save the Trained Model
-    # -----------------------------
+    # Save the Trained Model
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to '{model_path}'")

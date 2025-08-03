@@ -15,14 +15,5 @@ class SudokuBoard:
             print("\n", end="")
 
     def solve(self) -> None:
-        for row in range(9):
-            for col in range(9):
-                if self.matrix[row][col] == 0:
-                    for num in range(1, 10):
-                        if self.is_valid(row, col, num):
-                            self.matrix[row][col] = num
-                            if self.solve():
-                                return True
-                            self.matrix[row][col] = 0
-                    return False
-        return True
+        #TODO: Implement a solving algorithm after make the model read the digits correctly first
+        return None
